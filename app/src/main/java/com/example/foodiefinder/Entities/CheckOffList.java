@@ -9,19 +9,19 @@ import androidx.room.PrimaryKey;
 @Entity(tableName = "checkoff_list",
         foreignKeys = {
                 @ForeignKey(entity = User.class,
-                        parentColumns = "userId",
-                        childColumns = "userId",
+                        parentColumns = "userID",
+                        childColumns = "userID",
                         onDelete = CASCADE),
                 @ForeignKey(entity = Restaurant.class,
-                        parentColumns = "restaurantId",
-                        childColumns = "restaurantId",
+                        parentColumns = "restaurantID",
+                        childColumns = "restaurantID",
                         onDelete = CASCADE)
         })
 public class CheckOffList {
     @PrimaryKey(autoGenerate = true)
-    public int checkOffListId;
-    public int userId;
-    public int restaurantId;
+    public int checkOffListID;
+    public int userID;
+    public int restaurantID;
     public boolean visited;
     public long addedAt;
     public long visitedAt;

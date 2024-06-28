@@ -13,20 +13,21 @@ import com.example.foodiefinder.Entities.CheckOffList;
 import com.example.foodiefinder.Entities.Restaurant;
 import com.example.foodiefinder.Entities.User;
 
-@Database(entities = {User.class, Restaurant.class, CheckOffList.class}, version = 1)
+@Database(entities = {User.class, Restaurant.class, CheckOffList.class}, version = 2)
 public abstract class AppDatabase extends RoomDatabase {
-    private static volatile AppDatabase INSTANCE;
-
-    public abstract UserDao userDao();
     public abstract RestaurantDao restaurantDao();
+    public abstract UserDao userDao();
     public abstract CheckOffListDao checkOffListDao();
 
-    public static AppDatabase getDatabase( final Context context) {
-        if (INSTANCE == null) {
+    public static volatile AppDatabase INSTANCE;
+
+    public static AppDatabase getDatabase(final Context context) {
+        if(INSTANCE == null) {
             synchronized (AppDatabase.class) {
                 if (INSTANCE == null) {
-                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
-                            AppDatabase.class, "foodie_finder_database").build();
+                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "foodie_finder_database")
+                            .fallbackToDestructiveMigration()
+                            .build();
                 }
             }
         }
