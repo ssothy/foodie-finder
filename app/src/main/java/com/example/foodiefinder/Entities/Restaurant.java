@@ -101,4 +101,8 @@ public class Restaurant {
         this.comment = comment;
     }
 
+    public String getRestaurantName() {
+        return name;
+    }
+
 }

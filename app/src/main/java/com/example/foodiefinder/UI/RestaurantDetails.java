@@ -15,25 +15,11 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.foodiefinder.Database.RestaurantRepository;
 import com.example.foodiefinder.Entities.Restaurant;
 import com.example.foodiefinder.R;
-import com.example.foodiefinder.ViewModel.RestaurantViewModel;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class RestaurantDetails extends AppCompatActivity {
     int restaurantID;
-    String name;
-    String neighborhood;
-    String address;
-    String phoneNumber;
-    String website;
-    String category;
-    int rating;
-    String comment;
-
     EditText editName;
     EditText editNeighborhood;
     EditText editPostalAddress;
@@ -42,16 +28,14 @@ public class RestaurantDetails extends AppCompatActivity {
     EditText editCategory;
     EditText editComment;
     RatingBar ratingBar;
-
-    RestaurantViewModel restaurantViewModel;
-    Restaurant restaurant;
-    List<Restaurant> allRestaurants;
+    RestaurantRepository repository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_restaurant_details);
+
+        repository = new RestaurantRepository(getApplication());
 
         editName = findViewById(R.id.nameEditText);
         editNeighborhood = findViewById(R.id.neighborhoodEditText);
@@ -63,52 +47,26 @@ public class RestaurantDetails extends AppCompatActivity {
         ratingBar = findViewById(R.id.ratingBar);
 
         restaurantID = getIntent().getIntExtra("id", -1);
-        name = getIntent().getStringExtra("name");
-        neighborhood = getIntent().getStringExtra("neighborhood");
-        address = getIntent().getStringExtra("address");
-        phoneNumber = getIntent().getStringExtra("phoneNumber");
-        website = getIntent().getStringExtra("website");
-        category = getIntent().getStringExtra("category");
-        rating = getIntent().getIntExtra("rating", 0);
-        comment = getIntent().getStringExtra("comment");
+        if (restaurantID != -1) {
+            String name = getIntent().getStringExtra("name");
+            String neighborhood = getIntent().getStringExtra("neighborhood");
+            String address = getIntent().getStringExtra("address");
+            String phoneNumber = getIntent().getStringExtra("phoneNumber");
+            String website = getIntent().getStringExtra("website");
+            String category = getIntent().getStringExtra("category");
+            int rating = getIntent().getIntExtra("rating", 0);
+            String comment = getIntent().getStringExtra("comments");
 
-        editName.setText(name);
-        editNeighborhood.setText(neighborhood);
-        editPhoneNumber.setText(phoneNumber);
-        editPostalAddress.setText(address);
-        editWebsite.setText(website);
-        editCategory.setText(category);
-        editComment.setText(comment);
-        ratingBar.setRating(rating);
+            editName.setText(name);
+            editNeighborhood.setText(neighborhood);
+            editPhoneNumber.setText(phoneNumber);
+            editPostalAddress.setText(address);
+            editWebsite.setText(website);
+            editCategory.setText(category);
+            editComment.setText(comment);
+            ratingBar.setRating(rating);
+        }
 
-        restaurantViewModel = new ViewModelProvider(this).get(RestaurantViewModel.class);
-
-        restaurantViewModel.getRestaurantById(restaurantID).observe(this, new Observer<Restaurant>() {
-            @Override
-            public void onChanged(Restaurant restaurant) {
-                if (restaurant != null) {
-                    RestaurantDetails.this.restaurant = restaurant;
-                    ratingBar.setRating(restaurant.getRating());
-                }
-            }
-        });
-
-        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
-            @Override
-            public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
-                if (fromUser && restaurant != null) {
-                    restaurant.setRating((int) rating);
-                    restaurantViewModel.update(restaurant);
-                }
-            }
-        });
-
-        restaurantViewModel.getAllRestaurants().observe(this, new Observer<List<Restaurant>>() {
-            @Override
-            public void onChanged(List<Restaurant> restaurants) {
-                allRestaurants = restaurants;
-            }
-        });
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -120,15 +78,14 @@ public class RestaurantDetails extends AppCompatActivity {
         if (item.getItemId() == R.id.restaurantsave) {
             if (validateRestaurantDetails()) {
                 if (restaurantID == -1) {
-                    // Insert new restaurant
-                    if (allRestaurants == null || allRestaurants.isEmpty()) {
-                        restaurantID = 1;
-                    } else {
-                        restaurantID = allRestaurants.get(allRestaurants.size() - 1).getRestaurantID() + 1;
-                    }
+                    // Insert new vacation
+                    Restaurant restaurant;
+                    if (repository.getAllRestaurants().size() == 0) restaurantID = 1;
+                    else
+                        restaurantID = repository.getAllRestaurants().get(repository.getAllRestaurants().size() - 1).getRestaurantID() + 1;
                     saveRestaurant();
                 } else {
-                    // Update existing restaurant
+                    // Update existing vacation
                     updateRestaurant();
                 }
             }
@@ -142,28 +99,27 @@ public class RestaurantDetails extends AppCompatActivity {
 
     private boolean validateRestaurantDetails() {
         String name = editName.getText().toString();
-
         if (name.isEmpty()) {
-            // Display error message for empty restaurant name
-            Toast.makeText(this, "Restaurant name cannot be empty!", Toast.LENGTH_SHORT).show();
+            // Display error message for empty vacation name
+            Toast.makeText(this, "Restaurant name cannot be empty.", Toast.LENGTH_SHORT).show();
             return false;
         }
         return true;
     }
 
-    private void saveRestaurant() {
+    private void deleteRestaurant() {
         Restaurant restaurant = new Restaurant(
                 restaurantID,
                 editName.getText().toString(),
-                editNeighborhood.getText().toString(),
-                editPhoneNumber.getText().toString(),
-                editPostalAddress.getText().toString(),
-                editWebsite.getText().toString(),
                 editCategory.getText().toString(),
-                (int) ratingBar.getRating(),
+                editNeighborhood.getText().toString(),
+                editPostalAddress.getText().toString(),
+                editPhoneNumber.getText().toString(),
+                editWebsite.getText().toString(),
+                ratingBar.getNumStars(),
                 editComment.getText().toString()
         );
-        restaurantViewModel.insert(restaurant);
+        repository.delete(restaurant);
         finish();
     }
 
@@ -171,22 +127,31 @@ public class RestaurantDetails extends AppCompatActivity {
         Restaurant restaurant = new Restaurant(
                 restaurantID,
                 editName.getText().toString(),
-                editNeighborhood.getText().toString(),
-                editPhoneNumber.getText().toString(),
-                editPostalAddress.getText().toString(),
-                editWebsite.getText().toString(),
                 editCategory.getText().toString(),
-                (int) ratingBar.getRating(),
+                editNeighborhood.getText().toString(),
+                editPostalAddress.getText().toString(),
+                editPhoneNumber.getText().toString(),
+                editWebsite.getText().toString(),
+                ratingBar.getNumStars(),
                 editComment.getText().toString()
         );
-        restaurantViewModel.update(restaurant);
+        repository.update(restaurant);
         finish();
     }
 
-    private void deleteRestaurant() {
-        if (restaurant != null) {
-            restaurantViewModel.delete(restaurant);
-            finish();
-        }
+    private void saveRestaurant() {
+        Restaurant restaurant = new Restaurant(
+                restaurantID,
+                editName.getText().toString(),
+                editCategory.getText().toString(),
+                editNeighborhood.getText().toString(),
+                editPostalAddress.getText().toString(),
+                editPhoneNumber.getText().toString(),
+                editWebsite.getText().toString(),
+                ratingBar.getNumStars(),
+                editComment.getText().toString()
+        );
+        repository.insert(restaurant);
+        finish();
     }
 }
