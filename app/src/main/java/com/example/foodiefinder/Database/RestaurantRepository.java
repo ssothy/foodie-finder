@@ -74,4 +74,17 @@ public class RestaurantRepository {
             e.printStackTrace();
         }
     }
+
+    public Restaurant getRestaurantById(int restaurantID) {
+        databaseExecutor.execute(() -> {
+            mAllRestaurants = restaurantDao.getRestaurantById(restaurantID);
+        });
+        try{
+            Thread.sleep(1000);
+        } catch (InterruptedException e){
+            throw new RuntimeException(e);
+        }
+
+        return (Restaurant) mAllRestaurants;
+    }
 }

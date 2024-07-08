@@ -8,25 +8,27 @@ public class Restaurant {
     @PrimaryKey(autoGenerate = true)
     public int restaurantID;
     public String name;
-    public String address;
+    public String category;
     public String neighborhood;
     public String phoneNumber;
     public String website;
-    public String category;
+    public String address;
     public int rating;
     public String comment;
+    public boolean isChecked;
 
 
-    public Restaurant(int restaurantID, String name, String address, String neighborhood, String phoneNumber, String website, String category, int rating, String comment) {
+    public Restaurant(int restaurantID, String name, String category, String neighborhood, String phoneNumber, String website, String address, int rating, String comment, boolean isChecked) {
         this.restaurantID = restaurantID;
         this.name = name;
-        this.address = address;
+        this.category = category;
         this.neighborhood = neighborhood;
         this.phoneNumber = phoneNumber;
         this.website = website;
-        this.category = category;
+        this.address = address;
         this.rating = rating;
         this.comment = comment;
+        this.isChecked = isChecked;
     }
 
     public int getRestaurantID() {
@@ -45,12 +47,12 @@ public class Restaurant {
         this.name = name;
     }
 
-    public String getAddress() {
-        return address;
+    public String getCategory() {
+        return category;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     public String getNeighborhood() {
@@ -77,12 +79,12 @@ public class Restaurant {
         this.website = website;
     }
 
-    public String getCategory() {
-        return category;
+    public String getAddress() {
+        return address;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public int getRating() {
@@ -101,8 +103,11 @@ public class Restaurant {
         this.comment = comment;
     }
 
-    public String getRestaurantName() {
-        return name;
+    public boolean isChecked() {
+        return isChecked;
     }
 
+    public void setChecked(boolean checked) {
+        isChecked = checked;
+    }
 }

@@ -27,14 +27,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        RecyclerView recyclerView = findViewById(R.id.recyclerView);
+        // Initialize repository and fetch restaurants
         repository = new RestaurantRepository(getApplication());
         List<Restaurant> allRestaurants = repository.getAllRestaurants();
-        final RestaurantAdapter restaurantAdapter = new RestaurantAdapter(this);
-        recyclerView.setAdapter(restaurantAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        restaurantAdapter.setRestaurants(allRestaurants);
 
+        // Initialize RecyclerView and adapter
+        RecyclerView recyclerView = findViewById(R.id.recyclerView);
+        adapter = new RestaurantAdapter(this);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter.setRestaurants(allRestaurants);
+
+        // Initialize FloatingActionButton click listener
         FloatingActionButton fab = findViewById(R.id.floatingActionButton);
         fab.setOnClickListener(view -> {
             Intent intent = new Intent(MainActivity.this, RestaurantDetails.class);
@@ -45,24 +49,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        // Refresh restaurant data on resume
         List<Restaurant> allRestaurants = repository.getAllRestaurants();
-        RecyclerView recyclerView = findViewById(R.id.recyclerView);
-        final RestaurantAdapter restaurantAdapter = new RestaurantAdapter(this);
-        recyclerView.setAdapter(restaurantAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        restaurantAdapter.setRestaurants(allRestaurants);
-
+        adapter.setRestaurants(allRestaurants);
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main, menu);
 
+        // Initialize SearchView and set query listener
         MenuItem searchItem = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) searchItem.getActionView();
-
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {

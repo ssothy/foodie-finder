@@ -1,6 +1,7 @@
 package com.example.foodiefinder.UI;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -11,7 +12,9 @@ import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.room.Dao;
 
+import com.example.foodiefinder.DAO.RestaurantDao;
 import com.example.foodiefinder.Database.RestaurantRepository;
 import com.example.foodiefinder.Entities.Restaurant;
 import com.example.foodiefinder.R;
@@ -28,6 +31,7 @@ public class RestaurantDetails extends AppCompatActivity {
     EditText editCategory;
     EditText editComment;
     RatingBar ratingBar;
+    Boolean isChecked;
     RestaurantRepository repository;
 
     @Override
@@ -38,24 +42,26 @@ public class RestaurantDetails extends AppCompatActivity {
         repository = new RestaurantRepository(getApplication());
 
         editName = findViewById(R.id.nameEditText);
+        editCategory = findViewById(R.id.categoryEditText);
         editNeighborhood = findViewById(R.id.neighborhoodEditText);
         editPostalAddress = findViewById(R.id.editTextPostalAddress);
         editPhoneNumber = findViewById(R.id.editTextPhone);
         editWebsite = findViewById(R.id.websiteEditText);
-        editCategory = findViewById(R.id.categoryEditText);
         editComment = findViewById(R.id.editTextTextMultiLine);
         ratingBar = findViewById(R.id.ratingBar);
+
 
         restaurantID = getIntent().getIntExtra("id", -1);
         if (restaurantID != -1) {
             String name = getIntent().getStringExtra("name");
+            String category = getIntent().getStringExtra("category");
             String neighborhood = getIntent().getStringExtra("neighborhood");
-            String address = getIntent().getStringExtra("address");
             String phoneNumber = getIntent().getStringExtra("phoneNumber");
             String website = getIntent().getStringExtra("website");
-            String category = getIntent().getStringExtra("category");
+            String address = getIntent().getStringExtra("address");
             int rating = getIntent().getIntExtra("rating", 0);
             String comment = getIntent().getStringExtra("comments");
+            Boolean isChecked = getIntent().getBooleanExtra("isChecked", false);
 
             editName.setText(name);
             editNeighborhood.setText(neighborhood);
@@ -66,6 +72,8 @@ public class RestaurantDetails extends AppCompatActivity {
             editComment.setText(comment);
             ratingBar.setRating(rating);
         }
+        Log.d("RestaurantDetails", "Category: " + editCategory.getText().toString());
+        Log.d("RestaurantDetails", "Address: " + editPostalAddress.getText().toString());
 
     }
 
@@ -113,11 +121,12 @@ public class RestaurantDetails extends AppCompatActivity {
                 editName.getText().toString(),
                 editCategory.getText().toString(),
                 editNeighborhood.getText().toString(),
-                editPostalAddress.getText().toString(),
                 editPhoneNumber.getText().toString(),
                 editWebsite.getText().toString(),
+                editPostalAddress.getText().toString(),
                 ratingBar.getNumStars(),
-                editComment.getText().toString()
+                editComment.getText().toString(),
+                false
         );
         repository.delete(restaurant);
         finish();
@@ -129,14 +138,22 @@ public class RestaurantDetails extends AppCompatActivity {
                 editName.getText().toString(),
                 editCategory.getText().toString(),
                 editNeighborhood.getText().toString(),
-                editPostalAddress.getText().toString(),
                 editPhoneNumber.getText().toString(),
                 editWebsite.getText().toString(),
+                editPostalAddress.getText().toString(),
                 ratingBar.getNumStars(),
-                editComment.getText().toString()
+                editComment.getText().toString(),
+                getRestaurantCheckedState(restaurantID)
         );
         repository.update(restaurant);
+        Log.d("SaveRestaurant", "Category: " + restaurant.getCategory());
+        Log.d("SaveRestaurant", "Address: " + restaurant.getAddress());
         finish();
+    }
+
+    private boolean getRestaurantCheckedState(int restaurantID) {
+        Restaurant restaurant = repository.getRestaurantById(restaurantID);
+        return restaurant != null && restaurant.isChecked();
     }
 
     private void saveRestaurant() {
@@ -145,13 +162,16 @@ public class RestaurantDetails extends AppCompatActivity {
                 editName.getText().toString(),
                 editCategory.getText().toString(),
                 editNeighborhood.getText().toString(),
-                editPostalAddress.getText().toString(),
                 editPhoneNumber.getText().toString(),
                 editWebsite.getText().toString(),
+                editPostalAddress.getText().toString(),
                 ratingBar.getNumStars(),
-                editComment.getText().toString()
+                editComment.getText().toString(),
+                false
         );
         repository.insert(restaurant);
+        Log.d("SaveRestaurant", "Category: " + restaurant.getCategory());
+        Log.d("SaveRestaurant", "Address: " + restaurant.getAddress());
         finish();
     }
 }

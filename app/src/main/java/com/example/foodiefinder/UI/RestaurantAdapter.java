@@ -1,4 +1,5 @@
 package com.example.foodiefinder.UI;
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.util.SparseBooleanArray;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.foodiefinder.Database.RestaurantRepository;
 import com.example.foodiefinder.Entities.Restaurant;
 import com.example.foodiefinder.R;
 
@@ -26,8 +28,6 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
     public RestaurantAdapter(Context context) {
         mInflater = LayoutInflater.from(context);
         this.context = context;
-        this.mRestaurants = new ArrayList<>();
-        this.mRestaurantsFull = new ArrayList<>(mRestaurants);
     }
 
     public class RestaurantViewHolder extends RecyclerView.ViewHolder {
@@ -44,13 +44,14 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
                 Intent intent = new Intent(context, RestaurantDetails.class);
                 intent.putExtra("id", current.getRestaurantID());
                 intent.putExtra("name", current.getName());
-                intent.putExtra("address", current.getAddress());
+                intent.putExtra("category", current.getCategory());
                 intent.putExtra("neighborhood", current.getNeighborhood());
+                intent.putExtra("address", current.getAddress());
                 intent.putExtra("phoneNumber", current.getPhoneNumber());
                 intent.putExtra("website", current.getWebsite());
-                intent.putExtra("category", current.getCategory());
                 intent.putExtra("rating", current.getRating());
                 intent.putExtra("comments", current.getComment());
+                intent.putExtra("isChecked", current.isChecked());
                 context.startActivity(intent);
             });
 
@@ -74,9 +75,19 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
     public void onBindViewHolder(@NonNull RestaurantAdapter.RestaurantViewHolder holder, int position) {
         if (mRestaurants != null) {
             Restaurant current = mRestaurants.get(position);
-            String name = current.getRestaurantName();
+            String name = current.getName();
             holder.restaurantItemView.setText(name);
-            holder.checkBox.setChecked(false); // Reset checkbox state
+            holder.checkBox.setChecked(current.isChecked()); // Set checkbox state based on isChecked field
+
+            // Handle checkbox state change
+            holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                current.setChecked(isChecked);
+                // Update the restaurant in the repository
+                new Thread(() -> {
+                    RestaurantRepository repository = new RestaurantRepository((Application) holder.itemView.getContext().getApplicationContext());
+                    repository.update(current);
+                }).start();
+            });
         } else {
             holder.restaurantItemView.setText("No restaurant name");
         }
@@ -91,6 +102,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
 
     public void setRestaurants(List<Restaurant> restaurants) {
         mRestaurants = restaurants;
+        this.mRestaurantsFull = new ArrayList<>(restaurants);
         notifyDataSetChanged();
     }
 
