@@ -27,7 +27,7 @@ public interface RestaurantDao {
     @Query("SELECT * FROM restaurants ORDER BY restaurantID ASC")
     List<Restaurant> getAllRestaurants();
 
-    @Query("SELECT * FROM restaurants WHERE restaurantID = :id")
-    List<Restaurant> getRestaurantById(int id);
+    @Query("SELECT * FROM restaurants WHERE restaurantID = :id LIMIT 1")
+    Restaurant getRestaurantById(int id);
 
 }

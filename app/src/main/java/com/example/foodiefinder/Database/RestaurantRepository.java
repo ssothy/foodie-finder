@@ -9,6 +9,7 @@ import com.example.foodiefinder.Database.AppDatabase;
 import com.example.foodiefinder.Entities.Restaurant;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -76,15 +77,19 @@ public class RestaurantRepository {
     }
 
     public Restaurant getRestaurantById(int restaurantID) {
+        // Execute the database operation asynchronously
         databaseExecutor.execute(() -> {
-            mAllRestaurants = restaurantDao.getRestaurantById(restaurantID);
+            mAllRestaurants = Collections.singletonList(restaurantDao.getRestaurantById(restaurantID));
         });
-        try{
+
+        try {
+            // Wait briefly to ensure the database operation completes (not recommended in production)
             Thread.sleep(1000);
-        } catch (InterruptedException e){
+        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
 
-        return (Restaurant) mAllRestaurants;
+        // Return the single Restaurant object fetched by restaurantDao.getRestaurantById(restaurantID)
+        return mAllRestaurants.get(0);
     }
 }
