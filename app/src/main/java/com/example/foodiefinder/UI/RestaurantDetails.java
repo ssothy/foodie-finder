@@ -8,18 +8,11 @@ import android.widget.EditText;
 import android.widget.RatingBar;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.room.Dao;
 
-import com.example.foodiefinder.DAO.RestaurantDao;
 import com.example.foodiefinder.Database.RestaurantRepository;
 import com.example.foodiefinder.Entities.Restaurant;
 import com.example.foodiefinder.R;
-
-import java.util.List;
 
 public class RestaurantDetails extends AppCompatActivity {
     int restaurantID;
@@ -31,7 +24,6 @@ public class RestaurantDetails extends AppCompatActivity {
     EditText editCategory;
     EditText editComment;
     RatingBar ratingBar;
-    Boolean isChecked;
     RestaurantRepository repository;
 
     @Override
