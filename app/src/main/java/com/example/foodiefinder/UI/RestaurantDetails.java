@@ -1,5 +1,6 @@
 package com.example.foodiefinder.UI;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -14,6 +15,8 @@ import com.example.foodiefinder.Database.RestaurantRepository;
 import com.example.foodiefinder.Entities.Restaurant;
 import com.example.foodiefinder.R;
 
+import java.util.Calendar;
+
 public class RestaurantDetails extends AppCompatActivity {
     int restaurantID;
     EditText editName;
@@ -24,6 +27,7 @@ public class RestaurantDetails extends AppCompatActivity {
     EditText editCategory;
     EditText editComment;
     RatingBar ratingBar;
+    EditText editDate;
     RestaurantRepository repository;
 
     @Override
@@ -41,6 +45,7 @@ public class RestaurantDetails extends AppCompatActivity {
         editWebsite = findViewById(R.id.websiteEditText);
         editComment = findViewById(R.id.editTextTextMultiLine);
         ratingBar = findViewById(R.id.ratingBar);
+        editDate = findViewById(R.id.dateVisitedEditText);
 
 
         restaurantID = getIntent().getIntExtra("id", -1);
@@ -54,6 +59,7 @@ public class RestaurantDetails extends AppCompatActivity {
             int rating = getIntent().getIntExtra("rating", 0);
             String comment = getIntent().getStringExtra("comments");
             Boolean isChecked = getIntent().getBooleanExtra("isChecked", false);
+            String dateVisited = getIntent().getStringExtra("dateVisited");
 
             editName.setText(name);
             editNeighborhood.setText(neighborhood);
@@ -63,6 +69,14 @@ public class RestaurantDetails extends AppCompatActivity {
             editCategory.setText(category);
             editComment.setText(comment);
             ratingBar.setRating(rating);
+            editDate.setText(dateVisited);
+
+            editDate.setOnClickListener(v -> {
+                // Show DatePickerDialog for start date
+                showDatePickerDialog(editDate, () -> {
+                    // Callback for when a valid start date is selected (optional)
+                });
+            });
         }
         Log.d("RestaurantDetails", "Category: " + editCategory.getText().toString());
         Log.d("RestaurantDetails", "Address: " + editPostalAddress.getText().toString());
@@ -116,9 +130,10 @@ public class RestaurantDetails extends AppCompatActivity {
                 editPhoneNumber.getText().toString(),
                 editWebsite.getText().toString(),
                 editPostalAddress.getText().toString(),
-                ratingBar.getNumStars(),
+                (int) ratingBar.getRating(),
                 editComment.getText().toString(),
-                false
+                false,
+                editDate.getText().toString()
         );
         repository.delete(restaurant);
         finish();
@@ -133,9 +148,10 @@ public class RestaurantDetails extends AppCompatActivity {
                 editPhoneNumber.getText().toString(),
                 editWebsite.getText().toString(),
                 editPostalAddress.getText().toString(),
-                ratingBar.getNumStars(),
+                (int) ratingBar.getRating(),
                 editComment.getText().toString(),
-                getRestaurantCheckedState(restaurantID)
+                getRestaurantCheckedState(restaurantID),
+                editDate.getText().toString()
         );
         repository.update(restaurant);
         Log.d("SaveRestaurant", "Category: " + restaurant.getCategory());
@@ -157,13 +173,32 @@ public class RestaurantDetails extends AppCompatActivity {
                 editPhoneNumber.getText().toString(),
                 editWebsite.getText().toString(),
                 editPostalAddress.getText().toString(),
-                ratingBar.getNumStars(),
+                (int) ratingBar.getRating(),
                 editComment.getText().toString(),
-                false
+                false,
+                editDate.getText().toString()
         );
         repository.insert(restaurant);
         Log.d("SaveRestaurant", "Category: " + restaurant.getCategory());
         Log.d("SaveRestaurant", "Address: " + restaurant.getAddress());
         finish();
+    }
+
+    private void showDatePickerDialog(final EditText editText, final Runnable onDateSelected) {
+        final Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
+
+        // Create DatePickerDialog
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this,
+                (view, selectedYear, selectedMonth, selectedDayOfMonth) -> {
+                    // Set selected date on EditText
+                    editText.setText(selectedMonth + 1 + "/" + selectedDayOfMonth + "/" + selectedYear);
+                    onDateSelected.run();
+                }, year, month, dayOfMonth);
+
+        // Show DatePickerDialog
+        datePickerDialog.show();
     }
 }

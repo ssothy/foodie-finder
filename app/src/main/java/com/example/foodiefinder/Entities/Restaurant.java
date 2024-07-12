@@ -16,9 +16,10 @@ public class Restaurant {
     public int rating;
     public String comment;
     public boolean isChecked;
+    public String dateVisited;
 
 
-    public Restaurant(int restaurantID, String name, String category, String neighborhood, String phoneNumber, String website, String address, int rating, String comment, boolean isChecked) {
+    public Restaurant(int restaurantID, String name, String category, String neighborhood, String phoneNumber, String website, String address, int rating, String comment, boolean isChecked, String dateVisited) {
         this.restaurantID = restaurantID;
         this.name = name;
         this.category = category;
@@ -29,6 +30,7 @@ public class Restaurant {
         this.rating = rating;
         this.comment = comment;
         this.isChecked = isChecked;
+        this.dateVisited = dateVisited;
     }
 
     public int getRestaurantID() {
@@ -109,5 +111,13 @@ public class Restaurant {
 
     public void setChecked(boolean checked) {
         isChecked = checked;
+    }
+
+    public String getDateVisited() {
+        return dateVisited;
+    }
+
+    public void setDateVisited(String dateVisited) {
+        this.dateVisited = dateVisited;
     }
 }
