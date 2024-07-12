@@ -15,7 +15,11 @@ import com.example.foodiefinder.Database.RestaurantRepository;
 import com.example.foodiefinder.Entities.Restaurant;
 import com.example.foodiefinder.R;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 public class RestaurantDetails extends AppCompatActivity {
     int restaurantID;
@@ -113,11 +117,23 @@ public class RestaurantDetails extends AppCompatActivity {
 
     private boolean validateRestaurantDetails() {
         String name = editName.getText().toString();
+        String dateString = editDate.getText().toString();
+        String dateFormat = "MM/dd/yyyy";
+        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat, Locale.US);
         if (name.isEmpty()) {
             // Display error message for empty vacation name
             Toast.makeText(this, "Restaurant name cannot be empty.", Toast.LENGTH_SHORT).show();
             return false;
         }
+
+        try {
+            Date date = sdf.parse(dateString);
+        } catch (ParseException e) {
+            Toast.makeText(this, "Invalid date format. Use MM/dd/yyyy.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+
         return true;
     }
 

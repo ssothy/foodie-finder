@@ -50,6 +50,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
                 intent.putExtra("rating", current.getRating());
                 intent.putExtra("comments", current.getComment());
                 intent.putExtra("isChecked", current.isChecked());
+                intent.putExtra("dateVisited", current.getDateVisited());
                 context.startActivity(intent);
             });
 
