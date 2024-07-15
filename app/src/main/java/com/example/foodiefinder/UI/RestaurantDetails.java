@@ -125,15 +125,14 @@ public class RestaurantDetails extends AppCompatActivity {
             Toast.makeText(this, "Restaurant name cannot be empty.", Toast.LENGTH_SHORT).show();
             return false;
         }
-
-        try {
-            Date date = sdf.parse(dateString);
-        } catch (ParseException e) {
-            Toast.makeText(this, "Invalid date format. Use MM/dd/yyyy.", Toast.LENGTH_SHORT).show();
-            return false;
+        if (!dateString.isEmpty()) {
+            try {
+                Date date = sdf.parse(dateString);
+            } catch (ParseException e) {
+                Toast.makeText(this, "Invalid date format. Use MM/dd/yyyy.", Toast.LENGTH_SHORT).show();
+                return false;
+            }
         }
-
-
         return true;
     }
 
