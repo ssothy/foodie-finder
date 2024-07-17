@@ -9,7 +9,7 @@ import androidx.room.RoomDatabase;
 import com.example.foodiefinder.DAO.RestaurantDao;
 import com.example.foodiefinder.Entities.Restaurant;
 
-@Database(entities = {Restaurant.class}, version = 9)
+@Database(entities = {Restaurant.class}, version = 10)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract RestaurantDao restaurantDao();
 
