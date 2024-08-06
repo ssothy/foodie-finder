@@ -15,6 +15,7 @@ import com.example.foodiefinder.Entities.Restaurant;
 import com.example.foodiefinder.R;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.RestaurantViewHolder> {
@@ -31,9 +32,11 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
     public class RestaurantViewHolder extends RecyclerView.ViewHolder {
         private final TextView restaurantItemView;
         private final CheckBox checkBox;
+        private final RestaurantAdapter adapter;
 
-        public RestaurantViewHolder(@NonNull View itemView) {
+        public RestaurantViewHolder(@NonNull View itemView, RestaurantAdapter adapter) {
             super(itemView);
+            this.adapter = adapter;
             restaurantItemView = itemView.findViewById(R.id.textViewName);
             checkBox = itemView.findViewById(R.id.checkBox);
             itemView.setOnClickListener(view -> {
@@ -56,8 +59,19 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
 
             checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 int position = getAdapterPosition();
-                if (position != RecyclerView.NO_POSITION) {
-                    // Handle checkbox change
+                if (position != RecyclerView.NO_POSITION) {Restaurant restaurant = mRestaurants.get(position);
+                    restaurant.setChecked(isChecked);
+
+                    // Update the restaurant in the repository on a background thread
+                    new Thread(() -> {
+                        RestaurantRepository repository = new RestaurantRepository((Application) itemView.getContext().getApplicationContext());
+                        repository.update(restaurant);
+
+                        // Update the adapter on the main thread
+                        itemView.post(() -> {
+                            adapter.notifyItemChanged(position);
+                        });
+                    }).start();
                 }
             });
         }
@@ -67,7 +81,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
     @Override
     public RestaurantAdapter.RestaurantViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = mInflater.inflate(R.layout.restaurant_list_item, parent, false);
-        return new RestaurantViewHolder(itemView);
+        return new RestaurantViewHolder(itemView, this);
     }
 
     @Override
@@ -77,16 +91,6 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
             String name = current.getName();
             holder.restaurantItemView.setText(name);
             holder.checkBox.setChecked(current.isChecked()); // Set checkbox state based on isChecked field
-
-            // Handle checkbox state change
-            holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                current.setChecked(isChecked);
-                // Update the restaurant in the repository
-                new Thread(() -> {
-                    RestaurantRepository repository = new RestaurantRepository((Application) holder.itemView.getContext().getApplicationContext());
-                    repository.update(current);
-                }).start();
-            });
         } else {
             holder.restaurantItemView.setText("No restaurant name");
         }
@@ -125,3 +129,4 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
         notifyDataSetChanged();
     }
 }
+
